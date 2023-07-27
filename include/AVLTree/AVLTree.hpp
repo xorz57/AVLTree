@@ -32,9 +32,10 @@
 
 template<typename Key, typename Value>
 class AVLTree {
-private:
+public:
     using Handler = std::function<void(const Key &, Value &)>;
 
+private:
     struct AVLTreeNode {
         AVLTreeNode() = default;
 
@@ -250,7 +251,6 @@ private:
     AVLTreeNode *mRoot{nullptr};
 
 public:
-    using Handler = std::function<void(const Key &, Value &)>;
 
     AVLTree() = default;
 
