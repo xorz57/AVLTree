@@ -62,10 +62,10 @@ int main() {
     });
     std::cout << std::endl;
 
-    std::cout << "Remove Node with Key: 3" << std::endl;
+    std::cout << "RemoveHelper Node with Key: 3" << std::endl;
     tree.Remove(3);
 
-    std::cout << "Search Node with Key: 3" << std::endl;
+    std::cout << "SearchHelper Node with Key: 3" << std::endl;
     auto result = tree.Search(3);
     if (result) {
         std::cout << "Found" << std::endl;
@@ -74,7 +74,7 @@ int main() {
     }
 
     auto min = tree.Minimum();
-    std::cout << "Minimum: ";
+    std::cout << "MinimumHelper: ";
     if (min) {
         std::cout << min->key << " -> " << min->value << std::endl;
     } else {
@@ -82,15 +82,15 @@ int main() {
     }
 
     auto max = tree.Maximum();
-    std::cout << "Maximum: ";
+    std::cout << "MaximumHelper: ";
     if (max) {
         std::cout << max->key << " -> " << max->value << std::endl;
     } else {
         std::cout << "Not Found" << std::endl;
     }
 
-    std::cout << "Height: " << tree.Height() << std::endl;
-    std::cout << "Size: " << tree.Size() << std::endl;
+    std::cout << "HeightHelper: " << tree.Height() << std::endl;
+    std::cout << "SizeHelper: " << tree.Size() << std::endl;
 
     tree.Clear();
 
