@@ -41,14 +41,6 @@ private:
 
         AVLTreeNode(const Key &key, const Value &value) : key(key), value(value) {}
 
-        AVLTreeNode(const AVLTreeNode &) = delete;
-
-        AVLTreeNode(AVLTreeNode &&) = delete;
-
-        AVLTreeNode &operator=(const AVLTreeNode &) = delete;
-
-        AVLTreeNode &operator=(AVLTreeNode &&) = delete;
-
         ~AVLTreeNode() = default;
 
         AVLTreeNode *lChild = nullptr;
@@ -81,26 +73,11 @@ private:
         handler(root->key, root->value);
     }
 
-    AVLTreeNode *MinimumHelper(AVLTreeNode *root) {
-        if (!root) return nullptr;
-        while (root->lChild) root = root->lChild;
-        return root;
-    }
-
-    AVLTreeNode *MaximumHelper(AVLTreeNode *root) {
-        if (!root) return nullptr;
-        while (root->rChild) root = root->rChild;
-        return root;
-    }
-
-    unsigned HeightHelper(const AVLTreeNode *root) {
-        if (!root) return 0;
-        return root->height;
-    }
-
-    unsigned SizeHelper(const AVLTreeNode *root) {
-        if (!root) return 0;
-        return SizeHelper(root->lChild) + SizeHelper(root->rChild) + 1;
+    void ClearHelper(AVLTreeNode *root) {
+        if (!root) return;
+        if (root->lChild) ClearHelper(root->lChild);
+        if (root->rChild) ClearHelper(root->rChild);
+        delete root;
     }
 
     AVLTreeNode *InsertHelper(AVLTreeNode *root, const Key &key, const Value &value) {
@@ -197,16 +174,16 @@ private:
         return nullptr;
     }
 
-    void ClearHelper(AVLTreeNode *root) {
-        if (!root) return;
-        if (root->lChild) ClearHelper(root->lChild);
-        if (root->rChild) ClearHelper(root->rChild);
-        delete root;
+    AVLTreeNode *MinimumHelper(AVLTreeNode *root) {
+        if (!root) return nullptr;
+        while (root->lChild) root = root->lChild;
+        return root;
     }
 
-    int Balance(const AVLTreeNode *root) {
-        if (!root) return 0;
-        return HeightHelper(root->lChild) - HeightHelper(root->rChild);
+    AVLTreeNode *MaximumHelper(AVLTreeNode *root) {
+        if (!root) return nullptr;
+        while (root->rChild) root = root->rChild;
+        return root;
     }
 
     AVLTreeNode *RotateRight(AVLTreeNode *root) {
@@ -233,6 +210,21 @@ private:
         pivot->height = std::max(HeightHelper(pivot->lChild), HeightHelper(pivot->rChild)) + 1;
 
         return pivot;
+    }
+
+    unsigned HeightHelper(const AVLTreeNode *root) {
+        if (!root) return 0;
+        return root->height;
+    }
+
+    unsigned SizeHelper(const AVLTreeNode *root) {
+        if (!root) return 0;
+        return SizeHelper(root->lChild) + SizeHelper(root->rChild) + 1;
+    }
+
+    int Balance(const AVLTreeNode *root) {
+        if (!root) return 0;
+        return HeightHelper(root->lChild) - HeightHelper(root->rChild);
     }
 
     AVLTreeNode *mRoot{nullptr};
@@ -265,20 +257,9 @@ public:
         PostOrderTraversalHelper(mRoot, handler);
     }
 
-    AVLTreeNode *Minimum() {
-        return MinimumHelper(mRoot);
-    }
-
-    AVLTreeNode *Maximum() {
-        return MaximumHelper(mRoot);
-    }
-
-    unsigned Height() {
-        return HeightHelper(mRoot);
-    }
-
-    unsigned Size() {
-        return SizeHelper(mRoot);
+    void Clear() {
+        ClearHelper(mRoot);
+        mRoot = nullptr;
     }
 
     void Insert(const Key &key, const Value &value) {
@@ -293,8 +274,19 @@ public:
         return SearchHelper(mRoot, key);
     }
 
-    void Clear() {
-        ClearHelper(mRoot);
-        mRoot = nullptr;
+    AVLTreeNode *Minimum() {
+        return MinimumHelper(mRoot);
+    }
+
+    AVLTreeNode *Maximum() {
+        return MaximumHelper(mRoot);
+    }
+
+    unsigned Height() {
+        return HeightHelper(mRoot);
+    }
+
+    unsigned Size() {
+        return SizeHelper(mRoot);
     }
 };
