@@ -65,3 +65,11 @@ int main() {
 45 -> forty-five
 4 -> four
 ```
+
+## How to Build using [CMake](https://cmake.org/)
+
+```bash
+cmake -B build
+cmake --build build --config Release
+ctest -C Release
+```
