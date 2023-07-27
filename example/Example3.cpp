@@ -38,61 +38,19 @@ int main() {
     tree.Insert(14, "fourteen");
     tree.Insert(45, "forty-five");
 
-    std::cout << "Pre Order Traversal" << std::endl;
-    tree.PreOrderTraversal([](auto key, auto &value) {
-        std::cout << key << " -> " << value << std::endl;
-    });
-    std::cout << std::endl;
-
-    std::cout << "In Order Traversal" << std::endl;
-    tree.InOrderTraversal([](auto key, auto &value) {
-        std::cout << key << " -> " << value << std::endl;
-    });
-    std::cout << std::endl;
-
-    std::cout << "Post Order Traversal" << std::endl;
-    tree.PostOrderTraversal([](auto key, auto &value) {
-        std::cout << key << " -> " << value << std::endl;
-    });
-    std::cout << std::endl;
-
-    std::cout << "Breadth First Traversal" << std::endl;
-    tree.BreadthFirstTraversal([](auto key, auto &value) {
-        std::cout << key << " -> " << value << std::endl;
-    });
-    std::cout << std::endl;
-
-    std::cout << "RemoveHelper Node with Key: 3" << std::endl;
-    tree.Remove(3);
-
-    std::cout << "SearchHelper Node with Key: 3" << std::endl;
-    auto result = tree.Search(3);
-    if (result) {
-        std::cout << "Found" << std::endl;
-    } else {
-        std::cout << "Not Found" << std::endl;
-    }
-
     auto min = tree.Minimum();
-    std::cout << "MinimumHelper: ";
     if (min) {
-        std::cout << min->key << " -> " << min->value << std::endl;
+        std::cout << "Min Key: " << min->key << std::endl;
     } else {
-        std::cout << "Not Found" << std::endl;
+        std::cout << "Min Key: Not Found" << std::endl;
     }
 
     auto max = tree.Maximum();
-    std::cout << "MaximumHelper: ";
     if (max) {
-        std::cout << max->key << " -> " << max->value << std::endl;
+        std::cout << "Max Key: " << max->key << std::endl;
     } else {
-        std::cout << "Not Found" << std::endl;
+        std::cout << "Max Key: Not Found" << std::endl;
     }
-
-    std::cout << "HeightHelper: " << tree.Height() << std::endl;
-    std::cout << "SizeHelper: " << tree.Size() << std::endl;
-
-    tree.Clear();
 
     return 0;
 }

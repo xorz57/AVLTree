@@ -81,19 +81,6 @@ private:
         handler(root->key, root->value);
     }
 
-    void BreadthFirstTraversalHelper(AVLTreeNode *root, Handler handler) {
-        std::queue<AVLTreeNode *> queue;
-        if (!root) return;
-        queue.push(root);
-        while (!queue.empty()) {
-            AVLTreeNode *current{queue.front()};
-            handler(current->key, current->value);
-            queue.pop();
-            if (current->lChild) queue.push(current->lChild);
-            if (current->rChild) queue.push(current->rChild);
-        }
-    }
-
     AVLTreeNode *MinimumHelper(AVLTreeNode *root) {
         if (!root) return nullptr;
         while (root->lChild) root = root->lChild;
@@ -276,10 +263,6 @@ public:
 
     void PostOrderTraversal(Handler handler) {
         PostOrderTraversalHelper(mRoot, handler);
-    }
-
-    void BreadthFirstTraversal(Handler handler) {
-        BreadthFirstTraversalHelper(mRoot, handler);
     }
 
     AVLTreeNode *Minimum() {
