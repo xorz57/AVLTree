@@ -40,14 +40,14 @@ int main() {
 
     auto min = tree.Minimum();
     if (min) {
-        std::cout << "Min Key: " << min->key << std::endl;
+        std::cout << "Min: " << min->key << std::endl;
     } else {
         std::cout << "The tree is empty!" << std::endl;
     }
 
     auto max = tree.Maximum();
     if (max) {
-        std::cout << "Max Key: " << max->key << std::endl;
+        std::cout << "Max: " << max->key << std::endl;
     } else {
         std::cout << "The tree is empty!" << std::endl;
     }
