@@ -230,7 +230,6 @@ private:
     AVLTreeNode *mRoot{nullptr};
 
 public:
-
     AVLTree() = default;
 
     AVLTree(const AVLTree &) = delete;
