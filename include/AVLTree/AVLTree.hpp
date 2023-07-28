@@ -134,14 +134,14 @@ private:
             root->rChild = RemoveHelper(root->rChild, key);
         } else {
             if (!root->lChild || !root->rChild) {
-                AVLTreeNode* tmp = root->lChild ? root->lChild : root->rChild;
+                AVLTreeNode* temp = root->lChild ? root->lChild : root->rChild;
                 delete root;
-                return tmp;
+                return temp;
             }
 
-            AVLTreeNode* tmp = MinimumHelper(root->rChild);
-            root->key = tmp->key;
-            root->rChild = RemoveHelper(root->rChild, tmp->key);
+            AVLTreeNode* temp = MinimumHelper(root->rChild);
+            root->key = temp->key;
+            root->rChild = RemoveHelper(root->rChild, temp->key);
         }
 
         root->height = 1 + std::max(HeightHelper(root->lChild), HeightHelper(root->rChild));
