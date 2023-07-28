@@ -81,9 +81,7 @@ private:
     }
 
     AVLTreeNode *InsertHelper(AVLTreeNode *root, const Key &key, const Value &value) {
-        if (!root) {
-            return new AVLTreeNode(key, value);
-        }
+        if (!root) return new AVLTreeNode(key, value);
 
         if (key < root->key) {
             root->lChild = InsertHelper(root->lChild, key, value);
@@ -124,9 +122,7 @@ private:
     }
 
     AVLTreeNode *RemoveHelper(AVLTreeNode *root, const Key &key) {
-        if (!root) {
-            return root;
-        }
+        if (!root) return root;
 
         if (key < root->key) {
             root->lChild = RemoveHelper(root->lChild, key);
