@@ -129,45 +129,45 @@ private:
         }
 
         if (key < root->key) {
-            root->left = deleteRecursive(root->left, key);
+            root->lChild = RemoveHelper(root->lChild, key);
         } else if (key > root->key) {
-            root->right = deleteRecursive(root->right, key);
+            root->rChild = RemoveHelper(root->rChild, key);
         } else {
-            if (!root->left || !root->right) {
-                AVLTreeNode* temp = root->left ? root->left : root->right;
+            if (!root->lChild || !root->rChild) {
+                AVLTreeNode* temp = root->lChild ? root->lChild : root->rChild;
                 delete root;
                 return temp;
             }
 
-            AVLTreeNode* temp = minValueNode(root->right);
+            AVLTreeNode* temp = MinimumHelper(root->rChild);
             root->key = temp->key;
-            root->right = deleteRecursive(root->right, temp->key);
+            root->rChild = RemoveHelper(root->rChild, temp->key);
         }
 
-        root->height = 1 + std::max(getHeight(root->left), getHeight(root->right));
+        root->height = 1 + std::max(HeightHelper(root->lChild), HeightHelper(root->rChild));
 
-        int balance = getBalance(root);
+        int balance = Balance(root);
 
         // Left-Left case
-        if (balance > 1 && getBalance(root->left) >= 0) {
-            return rightRotate(root);
+        if (balance > 1 && Balance(root->lChild) >= 0) {
+            return RotateRight(root);
         }
 
         // Left-Right case
-        if (balance > 1 && getBalance(root->left) < 0) {
-            root->left = leftRotate(root->left);
-            return rightRotate(root);
+        if (balance > 1 && Balance(root->lChild) < 0) {
+            root->lChild = RotateLeft(root->lChild);
+            return RotateRight(root);
         }
 
         // Right-Right case
-        if (balance < -1 && getBalance(root->right) <= 0) {
-            return leftRotate(root);
+        if (balance < -1 && Balance(root->rChild) <= 0) {
+            return RotateLeft(root);
         }
 
         // Right-Left case
-        if (balance < -1 && getBalance(root->right) > 0) {
-            root->right = rightRotate(root->right);
-            return leftRotate(root);
+        if (balance < -1 && Balance(root->rChild) > 0) {
+            root->rChild = RotateRight(root->rChild);
+            return RotateLeft(root);
         }
 
         return root;
