@@ -81,81 +81,93 @@ private:
     }
 
     AVLTreeNode *InsertHelper(AVLTreeNode *root, const Key &key, const Value &value) {
-        if (!root) return new AVLTreeNode(key, value);
-        if (key < root->key)
+        if (!root) {
+            return new AVLTreeNode(key, value);
+        }
+
+        if (key < root->key) {
             root->lChild = InsertHelper(root->lChild, key, value);
-        else if (key > root->key)
+        } else if (key > root->key) {
             root->rChild = InsertHelper(root->rChild, key, value);
+        } else {
+            // Duplicate keys are not allowed in AVL tree
+            return root;
+        }
 
-        root->height = std::max(HeightHelper(root->lChild), HeightHelper(root->rChild)) + 1;
+        root->height = 1 + std::max(HeightHelper(root->lChild), HeightHelper(root->rChild));
 
-        if (Balance(root) > 1) {
-            if (key < root->lChild->key) {
-                return RotateRight(root);
-            } else if (key > root->lChild->key) {
-                root->lChild = RotateLeft(root->lChild);
-                return RotateRight(root);
-            }
-        } else if (Balance(root) < -1) {
-            if (key > root->rChild->key) {
-                return RotateLeft(root);
-            } else if (key < root->rChild->key) {
-                root->rChild = RotateRight(root->rChild);
-                return RotateLeft(root);
-            }
+        int balance = Balance(root);
+
+        // Left-Left case
+        if (balance > 1 && key < root->lChild->key) {
+            return RotateRight(root);
+        }
+
+        // Right-Right case
+        if (balance < -1 && key > root->rChild->key) {
+            return RotateLeft(root);
+        }
+
+        // Left-Right case
+        if (balance > 1 && key > root->lChild->key) {
+            root->lChild = RotateLeft(root->lChild);
+            return RotateRight(root);
+        }
+
+        // Right-Left case
+        if (balance < -1 && key < root->rChild->key) {
+            root->rChild = RotateRight(root->rChild);
+            return RotateLeft(root);
         }
 
         return root;
     }
 
     AVLTreeNode *RemoveHelper(AVLTreeNode *root, const Key &key) {
-        if (!root) return nullptr;
-        else if (key < root->key)
-            root->lChild = RemoveHelper(root->lChild, key);
-        else if (key > root->key)
-            root->rChild = RemoveHelper(root->rChild, key);
-        else {
-            if (!root->lChild && !root->rChild) {
-                delete root;
-                root = nullptr;
-            } else if (!root->lChild) {
-                AVLTreeNode *tmp{root};
-                root = root->rChild;
-                delete tmp;
-            } else if (!root->rChild) {
-                AVLTreeNode *tmp{root};
-                root = root->lChild;
-                delete tmp;
-            } else {
-                AVLTreeNode *min{MinimumHelper(root->rChild)};
-                root->key = min->key;
-                root->value = min->value;
-                root->rChild = RemoveHelper(root->rChild, min->key);
-                //AVLTreeNode * max{ MaximumHelper(root->lChild) };
-                //root->key = max->key;
-                //root->value = max->value;
-                //root->lChild = RemoveHelper(root->lChild, max->key);
-            }
+        if (!root) {
+            return root;
         }
 
-        if (!root) return nullptr;
-
-        root->height = std::max(HeightHelper(root->lChild), HeightHelper(root->rChild)) + 1;
-
-        if (Balance(root) > 1) {
-            if (Balance(root->lChild) >= 0) {
-                return RotateRight(root);
-            } else {
-                root->lChild = RotateLeft(root->lChild);
-                return RotateRight(root);
+        if (key < root->key) {
+            root->left = deleteRecursive(root->left, key);
+        } else if (key > root->key) {
+            root->right = deleteRecursive(root->right, key);
+        } else {
+            if (!root->left || !root->right) {
+                AVLTreeNode* temp = root->left ? root->left : root->right;
+                delete root;
+                return temp;
             }
-        } else if (Balance(root) < -1) {
-            if (Balance(root->rChild) <= 0) {
-                return RotateLeft(root);
-            } else {
-                root->rChild = RotateRight(root->rChild);
-                return RotateLeft(root);
-            }
+
+            AVLTreeNode* temp = minValueNode(root->right);
+            root->key = temp->key;
+            root->right = deleteRecursive(root->right, temp->key);
+        }
+
+        root->height = 1 + std::max(getHeight(root->left), getHeight(root->right));
+
+        int balance = getBalance(root);
+
+        // Left-Left case
+        if (balance > 1 && getBalance(root->left) >= 0) {
+            return rightRotate(root);
+        }
+
+        // Left-Right case
+        if (balance > 1 && getBalance(root->left) < 0) {
+            root->left = leftRotate(root->left);
+            return rightRotate(root);
+        }
+
+        // Right-Right case
+        if (balance < -1 && getBalance(root->right) <= 0) {
+            return leftRotate(root);
+        }
+
+        // Right-Left case
+        if (balance < -1 && getBalance(root->right) > 0) {
+            root->right = rightRotate(root->right);
+            return leftRotate(root);
         }
 
         return root;
@@ -187,27 +199,27 @@ private:
     }
 
     AVLTreeNode *RotateRight(AVLTreeNode *root) {
-        AVLTreeNode *pivot = root->lChild;
-        AVLTreeNode *orphan = pivot->rChild;
+        auto pivot = root->lChild;
+        auto orphan = pivot->rChild;
 
         pivot->rChild = root;
         root->lChild = orphan;
 
-        root->height = std::max(HeightHelper(root->lChild), HeightHelper(root->rChild)) + 1;
-        pivot->height = std::max(HeightHelper(pivot->lChild), HeightHelper(pivot->rChild)) + 1;
+        root->height = 1 + std::max(HeightHelper(root->lChild), HeightHelper(root->rChild));
+        pivot->height = 1 + std::max(HeightHelper(pivot->lChild), HeightHelper(pivot->rChild));
 
         return pivot;
     }
 
     AVLTreeNode *RotateLeft(AVLTreeNode *root) {
-        AVLTreeNode *pivot = root->rChild;
-        AVLTreeNode *orphan = pivot->lChild;
+        auto pivot = root->rChild;
+        auto orphan = pivot->lChild;
 
         pivot->lChild = root;
         root->rChild = orphan;
 
-        root->height = std::max(HeightHelper(root->lChild), HeightHelper(root->rChild)) + 1;
-        pivot->height = std::max(HeightHelper(pivot->lChild), HeightHelper(pivot->rChild)) + 1;
+        root->height = 1 + std::max(HeightHelper(root->lChild), HeightHelper(root->rChild));
+        pivot->height = 1 + std::max(HeightHelper(pivot->lChild), HeightHelper(pivot->rChild));
 
         return pivot;
     }
@@ -219,7 +231,7 @@ private:
 
     unsigned SizeHelper(const AVLTreeNode *root) {
         if (!root) return 0;
-        return SizeHelper(root->lChild) + SizeHelper(root->rChild) + 1;
+        return 1 + SizeHelper(root->lChild) + SizeHelper(root->rChild);
     }
 
     int Balance(const AVLTreeNode *root) {
@@ -227,18 +239,10 @@ private:
         return HeightHelper(root->lChild) - HeightHelper(root->rChild);
     }
 
-    AVLTreeNode *mRoot{nullptr};
+    AVLTreeNode *mRoot = nullptr;
 
 public:
     AVLTree() = default;
-
-    AVLTree(const AVLTree &) = delete;
-
-    AVLTree(AVLTree &&) = delete;
-
-    AVLTree &operator=(const AVLTree &) = delete;
-
-    AVLTree &operator=(AVLTree &&) = delete;
 
     ~AVLTree() {
         Clear();
