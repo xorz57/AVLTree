@@ -130,12 +130,12 @@ private:
             root->rChild = RemoveHelper(root->rChild, key);
         } else {
             if (!root->lChild || !root->rChild) {
-                AVLTreeNode* temp = root->lChild ? root->lChild : root->rChild;
+                AVLTreeNode *temp = root->lChild ? root->lChild : root->rChild;
                 delete root;
                 return temp;
             }
 
-            AVLTreeNode* temp = MinimumHelper(root->rChild);
+            AVLTreeNode *temp = MinimumHelper(root->rChild);
             root->key = temp->key;
             root->rChild = RemoveHelper(root->rChild, temp->key);
         }
