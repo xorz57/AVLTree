@@ -22,7 +22,7 @@
 	SOFTWARE.
 */
 
-#include <AVLTree/AVLTree.hpp>
+#include "AVLTree/AVLTree.hpp"
 
 #include <iostream>
 #include <string>
