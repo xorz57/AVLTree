@@ -38,11 +38,7 @@ public:
 
 private:
     struct AVLTreeNode {
-        AVLTreeNode() = default;
-
         AVLTreeNode(const Key &key, const Value &value) : key(key), value(value) {}
-
-        ~AVLTreeNode() = default;
 
         std::shared_ptr<AVLTreeNode> lChild;
         std::shared_ptr<AVLTreeNode> rChild;
@@ -74,13 +70,6 @@ private:
         handler(root->key, root->value);
     }
 
-    void ClearHelper(std::shared_ptr<AVLTreeNode> root) {
-        if (!root) return;
-        if (root->lChild) ClearHelper(root->lChild);
-        if (root->rChild) ClearHelper(root->rChild);
-        root.reset();
-    }
-
     std::shared_ptr<AVLTreeNode> InsertHelper(std::shared_ptr<AVLTreeNode> root, const Key &key, const Value &value) {
         if (!root) return std::make_shared<AVLTreeNode>(key, value);
 
@@ -89,7 +78,6 @@ private:
         } else if (key > root->key) {
             root->rChild = InsertHelper(root->rChild, key, value);
         } else {
-            // Duplicate keys are not allowed in AVL tree
             return root;
         }
 
@@ -97,23 +85,19 @@ private:
 
         int balance = Balance(root);
 
-        // Left-Left case
         if (balance > 1 && key < root->lChild->key) {
             return RotateRight(root);
         }
 
-        // Right-Right case
         if (balance < -1 && key > root->rChild->key) {
             return RotateLeft(root);
         }
 
-        // Left-Right case
         if (balance > 1 && key > root->lChild->key) {
             root->lChild = RotateLeft(root->lChild);
             return RotateRight(root);
         }
 
-        // Right-Left case
         if (balance < -1 && key < root->rChild->key) {
             root->rChild = RotateRight(root->rChild);
             return RotateLeft(root);
@@ -123,7 +107,7 @@ private:
     }
 
     std::shared_ptr<AVLTreeNode> RemoveHelper(std::shared_ptr<AVLTreeNode> root, const Key &key) {
-        if (!root) return root;
+        if (!root) return nullptr;
 
         if (key < root->key) {
             root->lChild = RemoveHelper(root->lChild, key);
@@ -145,23 +129,19 @@ private:
 
         int balance = Balance(root);
 
-        // Left-Left case
         if (balance > 1 && Balance(root->lChild) >= 0) {
             return RotateRight(root);
         }
 
-        // Left-Right case
         if (balance > 1 && Balance(root->lChild) < 0) {
             root->lChild = RotateLeft(root->lChild);
             return RotateRight(root);
         }
 
-        // Right-Right case
         if (balance < -1 && Balance(root->rChild) <= 0) {
             return RotateLeft(root);
         }
 
-        // Right-Left case
         if (balance < -1 && Balance(root->rChild) > 0) {
             root->rChild = RotateRight(root->rChild);
             return RotateLeft(root);
@@ -254,8 +234,7 @@ public:
     }
 
     void Clear() {
-        ClearHelper(mRoot);
-        mRoot = nullptr;
+        mRoot.reset();
     }
 
     void Insert(const Key &key, const Value &value) {
