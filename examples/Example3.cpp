@@ -38,15 +38,13 @@ int main() {
     tree.Insert(14, "fourteen");
     tree.Insert(45, "forty-five");
 
-    auto min = tree.Minimum();
-    if (min) {
+    if (auto min = tree.Minimum()) {
         std::cout << "Min: " << min->key << std::endl;
     } else {
         std::cout << "The tree is empty!" << std::endl;
     }
 
-    auto max = tree.Maximum();
-    if (max) {
+    if (auto max = tree.Maximum()) {
         std::cout << "Max: " << max->key << std::endl;
     } else {
         std::cout << "The tree is empty!" << std::endl;
