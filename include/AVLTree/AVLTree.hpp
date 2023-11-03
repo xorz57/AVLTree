@@ -220,7 +220,7 @@ private:
         return pivot;
     }
 
-    unsigned HeightHelper(const AVLTreeNode *root) {
+    unsigned HeightHelper(const AVLTreeNode *root) const {
         if (!root) return 0;
         return root->height;
     }
