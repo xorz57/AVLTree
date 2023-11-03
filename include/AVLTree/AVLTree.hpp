@@ -241,10 +241,6 @@ private:
 public:
     AVLTree() = default;
 
-    ~AVLTree() {
-        Clear();
-    }
-
     void PreOrderTraversal(Handler handler) {
         PreOrderTraversalHelper(mRoot, handler);
     }
