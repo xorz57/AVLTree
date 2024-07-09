@@ -28,7 +28,7 @@
 #include <string>
 
 int main() {
-    AVLTree<int, std::string> tree;
+    avl_tree_t<int, std::string> tree;
 
     tree.Insert(2, "two");
     tree.Insert(4, "four");
