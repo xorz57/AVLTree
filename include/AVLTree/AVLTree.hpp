@@ -49,6 +49,53 @@ using handler_t = std::function<void(const key_t &, value_t &)>;
 
 template<typename key_t, typename value_t>
 class avl_tree_t {
+public:
+    avl_tree_t() = default;
+
+    void pre_order_traversal(handler_t<key_t, value_t> handler) {
+        pre_order_traversal_helper(m_root, handler);
+    }
+
+    void in_order_traversal(handler_t<key_t, value_t> handler) {
+        in_order_traversal_helper(m_root, handler);
+    }
+
+    void post_order_traversal(handler_t<key_t, value_t> handler) {
+        post_order_traversal_helper(m_root, handler);
+    }
+
+    void clear() {
+        m_root.reset();
+    }
+
+    void insert(const key_t &key, const value_t &value) {
+        m_root = insert_helper(m_root, key, value);
+    }
+
+    void remove(const key_t &key) {
+        m_root = remove_helper(m_root, key);
+    }
+
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> search(const key_t &key) {
+        return search_helper(m_root, key);
+    }
+
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> minimum() {
+        return minimum_helper(m_root);
+    }
+
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> maximum() {
+        return maximum_helper(m_root);
+    }
+
+    unsigned height() {
+        return height_helper(m_root);
+    }
+
+    unsigned size() {
+        return size_helper(m_root);
+    }
+
 private:
     void pre_order_traversal_helper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root, handler_t<key_t, value_t> handler) {
         if (!root) return;
@@ -214,51 +261,4 @@ private:
     }
 
     std::shared_ptr<avl_tree_node_t<key_t, value_t>> m_root;
-
-public:
-    avl_tree_t() = default;
-
-    void pre_order_traversal(handler_t<key_t, value_t> handler) {
-        pre_order_traversal_helper(m_root, handler);
-    }
-
-    void in_order_traversal(handler_t<key_t, value_t> handler) {
-        in_order_traversal_helper(m_root, handler);
-    }
-
-    void post_order_traversal(handler_t<key_t, value_t> handler) {
-        post_order_traversal_helper(m_root, handler);
-    }
-
-    void clear() {
-        m_root.reset();
-    }
-
-    void insert(const key_t &key, const value_t &value) {
-        m_root = insert_helper(m_root, key, value);
-    }
-
-    void remove(const key_t &key) {
-        m_root = remove_helper(m_root, key);
-    }
-
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> search(const key_t &key) {
-        return search_helper(m_root, key);
-    }
-
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> minimum() {
-        return minimum_helper(m_root);
-    }
-
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> maximum() {
-        return maximum_helper(m_root);
-    }
-
-    unsigned height() {
-        return height_helper(m_root);
-    }
-
-    unsigned size() {
-        return size_helper(m_root);
-    }
 };
