@@ -30,21 +30,21 @@
 int main() {
     avl_tree_t<int, std::string> tree;
 
-    tree.Insert(2, "two");
-    tree.Insert(4, "four");
-    tree.Insert(90, "ninety");
-    tree.Insert(3, "three");
-    tree.Insert(0, "zero");
-    tree.Insert(14, "fourteen");
-    tree.Insert(45, "forty-five");
+    tree.insert(2, "two");
+    tree.insert(4, "four");
+    tree.insert(90, "ninety");
+    tree.insert(3, "three");
+    tree.insert(0, "zero");
+    tree.insert(14, "fourteen");
+    tree.insert(45, "forty-five");
 
-    std::cout << "Height: " << tree.Height() << std::endl;
-    std::cout << "Size: " << tree.Size() << std::endl;
+    std::cout << "Height: " << tree.height() << std::endl;
+    std::cout << "Size: " << tree.size() << std::endl;
 
-    tree.Clear();
+    tree.clear();
 
-    std::cout << "Height: " << tree.Height() << std::endl;
-    std::cout << "Size: " << tree.Size() << std::endl;
+    std::cout << "Height: " << tree.height() << std::endl;
+    std::cout << "Size: " << tree.size() << std::endl;
 
     return 0;
 }

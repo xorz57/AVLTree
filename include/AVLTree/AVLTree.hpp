@@ -50,70 +50,68 @@ using handler_t = std::function<void(const key_t &, value_t &)>;
 template<typename key_t, typename value_t>
 class avl_tree_t {
 private:
-    void PreOrderTraversalHelper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root, handler_t<key_t, value_t> handler) {
+    void pre_order_traversal_helper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root, handler_t<key_t, value_t> handler) {
         if (!root) return;
         handler(root->key, root->value);
-        PreOrderTraversalHelper(root->lchild, handler);
-        PreOrderTraversalHelper(root->rchild, handler);
+        pre_order_traversal_helper(root->lchild, handler);
+        pre_order_traversal_helper(root->rchild, handler);
     }
 
-    void InOrderTraversalHelper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root, handler_t<key_t, value_t> handler) {
+    void in_order_traversal_helper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root, handler_t<key_t, value_t> handler) {
         if (!root) return;
-        InOrderTraversalHelper(root->lchild, handler);
+        in_order_traversal_helper(root->lchild, handler);
         handler(root->key, root->value);
-        InOrderTraversalHelper(root->rchild, handler);
+        in_order_traversal_helper(root->rchild, handler);
     }
 
-    void PostOrderTraversalHelper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root, handler_t<key_t, value_t> handler) {
+    void post_order_traversal_helper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root, handler_t<key_t, value_t> handler) {
         if (!root) return;
-        PostOrderTraversalHelper(root->lchild, handler);
-        PostOrderTraversalHelper(root->rchild, handler);
+        post_order_traversal_helper(root->lchild, handler);
+        post_order_traversal_helper(root->rchild, handler);
         handler(root->key, root->value);
     }
 
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> InsertHelper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root, const key_t &key, const value_t &value) {
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> insert_helper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root, const key_t &key, const value_t &value) {
         if (!root) return std::make_shared<avl_tree_node_t<key_t, value_t>>(key, value);
 
         if (key < root->key) {
-            root->lchild = InsertHelper(root->lchild, key, value);
+            root->lchild = insert_helper(root->lchild, key, value);
         } else if (key > root->key) {
-            root->rchild = InsertHelper(root->rchild, key, value);
+            root->rchild = insert_helper(root->rchild, key, value);
         } else {
             return root;
         }
 
-        root->height = 1 + std::max(HeightHelper(root->lchild), HeightHelper(root->rchild));
+        root->height = 1 + std::max(height_helper(root->lchild), height_helper(root->rchild));
 
-        int balance = Balance(root);
-
-        if (balance > 1 && key < root->lchild->key) {
-            return RotateRight(root);
+        if (balance(root) > 1 && key < root->lchild->key) {
+            return rrorate(root);
         }
 
-        if (balance < -1 && key > root->rchild->key) {
-            return RotateLeft(root);
+        if (balance(root) < -1 && key > root->rchild->key) {
+            return lrotate(root);
         }
 
-        if (balance > 1 && key > root->lchild->key) {
-            root->lchild = RotateLeft(root->lchild);
-            return RotateRight(root);
+        if (balance(root) > 1 && key > root->lchild->key) {
+            root->lchild = lrotate(root->lchild);
+            return rrorate(root);
         }
 
-        if (balance < -1 && key < root->rchild->key) {
-            root->rchild = RotateRight(root->rchild);
-            return RotateLeft(root);
+        if (balance(root) < -1 && key < root->rchild->key) {
+            root->rchild = rrorate(root->rchild);
+            return lrotate(root);
         }
 
         return root;
     }
 
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> RemoveHelper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root, const key_t &key) {
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> remove_helper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root, const key_t &key) {
         if (!root) return nullptr;
 
         if (key < root->key) {
-            root->lchild = RemoveHelper(root->lchild, key);
+            root->lchild = remove_helper(root->lchild, key);
         } else if (key > root->key) {
-            root->rchild = RemoveHelper(root->rchild, key);
+            root->rchild = remove_helper(root->rchild, key);
         } else {
             if (!root->lchild || !root->rchild) {
                 std::shared_ptr<avl_tree_node_t<key_t, value_t>> temp = root->lchild ? root->lchild : root->rchild;
@@ -121,37 +119,35 @@ private:
                 return temp;
             }
 
-            std::shared_ptr<avl_tree_node_t<key_t, value_t>> temp = MinimumHelper(root->rchild);
+            std::shared_ptr<avl_tree_node_t<key_t, value_t>> temp = minimum_helper(root->rchild);
             root->key = temp->key;
-            root->rchild = RemoveHelper(root->rchild, temp->key);
+            root->rchild = remove_helper(root->rchild, temp->key);
         }
 
-        root->height = 1 + std::max(HeightHelper(root->lchild), HeightHelper(root->rchild));
+        root->height = 1 + std::max(height_helper(root->lchild), height_helper(root->rchild));
 
-        int balance = Balance(root);
-
-        if (balance > 1 && Balance(root->lchild) >= 0) {
-            return RotateRight(root);
+        if (balance(root) > 1 && balance(root->lchild) >= 0) {
+            return rrorate(root);
         }
 
-        if (balance > 1 && Balance(root->lchild) < 0) {
-            root->lchild = RotateLeft(root->lchild);
-            return RotateRight(root);
+        if (balance(root) > 1 && balance(root->lchild) < 0) {
+            root->lchild = lrotate(root->lchild);
+            return rrorate(root);
         }
 
-        if (balance < -1 && Balance(root->rchild) <= 0) {
-            return RotateLeft(root);
+        if (balance(root) < -1 && balance(root->rchild) <= 0) {
+            return lrotate(root);
         }
 
-        if (balance < -1 && Balance(root->rchild) > 0) {
-            root->rchild = RotateRight(root->rchild);
-            return RotateLeft(root);
+        if (balance(root) < -1 && balance(root->rchild) > 0) {
+            root->rchild = rrorate(root->rchild);
+            return lrotate(root);
         }
 
         return root;
     }
 
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> SearchHelper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root, const key_t &key) {
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> search_helper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root, const key_t &key) {
         while (root) {
             if (key > root->key) {
                 root = root->rchild;
@@ -164,105 +160,105 @@ private:
         return nullptr;
     }
 
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> MinimumHelper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) {
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> minimum_helper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) {
         if (!root) return nullptr;
         while (root->lchild) root = root->lchild;
         return root;
     }
 
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> MaximumHelper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) {
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> maximum_helper(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) {
         if (!root) return nullptr;
         while (root->rchild) root = root->rchild;
         return root;
     }
 
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> RotateRight(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) {
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> rrorate(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) {
         auto pivot = root->lchild;
         auto orphan = pivot->rchild;
 
         pivot->rchild = root;
         root->lchild = orphan;
 
-        root->height = 1 + std::max(HeightHelper(root->lchild), HeightHelper(root->rchild));
-        pivot->height = 1 + std::max(HeightHelper(pivot->lchild), HeightHelper(pivot->rchild));
+        root->height = 1 + std::max(height_helper(root->lchild), height_helper(root->rchild));
+        pivot->height = 1 + std::max(height_helper(pivot->lchild), height_helper(pivot->rchild));
 
         return pivot;
     }
 
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> RotateLeft(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) {
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> lrotate(std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) {
         auto pivot = root->rchild;
         auto orphan = pivot->lchild;
 
         pivot->lchild = root;
         root->rchild = orphan;
 
-        root->height = 1 + std::max(HeightHelper(root->lchild), HeightHelper(root->rchild));
-        pivot->height = 1 + std::max(HeightHelper(pivot->lchild), HeightHelper(pivot->rchild));
+        root->height = 1 + std::max(height_helper(root->lchild), height_helper(root->rchild));
+        pivot->height = 1 + std::max(height_helper(pivot->lchild), height_helper(pivot->rchild));
 
         return pivot;
     }
 
-    unsigned HeightHelper(const std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) const {
+    unsigned height_helper(const std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) const {
         if (!root) return 0;
         return root->height;
     }
 
-    unsigned SizeHelper(const std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) {
+    unsigned size_helper(const std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) {
         if (!root) return 0;
-        return 1 + SizeHelper(root->lchild) + SizeHelper(root->rchild);
+        return 1 + size_helper(root->lchild) + size_helper(root->rchild);
     }
 
-    int Balance(const std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) {
+    int balance(const std::shared_ptr<avl_tree_node_t<key_t, value_t>> root) {
         if (!root) return 0;
-        return HeightHelper(root->lchild) - HeightHelper(root->rchild);
+        return height_helper(root->lchild) - height_helper(root->rchild);
     }
 
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> mRoot;
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> m_root;
 
 public:
     avl_tree_t() = default;
 
-    void PreOrderTraversal(handler_t<key_t, value_t> handler) {
-        PreOrderTraversalHelper(mRoot, handler);
+    void pre_order_traversal(handler_t<key_t, value_t> handler) {
+        pre_order_traversal_helper(m_root, handler);
     }
 
-    void InOrderTraversal(handler_t<key_t, value_t> handler) {
-        InOrderTraversalHelper(mRoot, handler);
+    void in_order_traversal(handler_t<key_t, value_t> handler) {
+        in_order_traversal_helper(m_root, handler);
     }
 
-    void PostOrderTraversal(handler_t<key_t, value_t> handler) {
-        PostOrderTraversalHelper(mRoot, handler);
+    void post_order_traversal(handler_t<key_t, value_t> handler) {
+        post_order_traversal_helper(m_root, handler);
     }
 
-    void Clear() {
-        mRoot.reset();
+    void clear() {
+        m_root.reset();
     }
 
-    void Insert(const key_t &key, const value_t &value) {
-        mRoot = InsertHelper(mRoot, key, value);
+    void insert(const key_t &key, const value_t &value) {
+        m_root = insert_helper(m_root, key, value);
     }
 
-    void Remove(const key_t &key) {
-        mRoot = RemoveHelper(mRoot, key);
+    void remove(const key_t &key) {
+        m_root = remove_helper(m_root, key);
     }
 
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> Search(const key_t &key) {
-        return SearchHelper(mRoot, key);
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> search(const key_t &key) {
+        return search_helper(m_root, key);
     }
 
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> Minimum() {
-        return MinimumHelper(mRoot);
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> minimum() {
+        return minimum_helper(m_root);
     }
 
-    std::shared_ptr<avl_tree_node_t<key_t, value_t>> Maximum() {
-        return MaximumHelper(mRoot);
+    std::shared_ptr<avl_tree_node_t<key_t, value_t>> maximum() {
+        return maximum_helper(m_root);
     }
 
-    unsigned Height() {
-        return HeightHelper(mRoot);
+    unsigned height() {
+        return height_helper(m_root);
     }
 
-    unsigned Size() {
-        return SizeHelper(mRoot);
+    unsigned size() {
+        return size_helper(m_root);
     }
 };

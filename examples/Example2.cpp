@@ -30,23 +30,23 @@
 int main() {
     avl_tree_t<int, std::string> tree;
 
-    tree.Insert(2, "two");
-    tree.Insert(4, "four");
-    tree.Insert(90, "ninety");
-    tree.Insert(3, "three");
-    tree.Insert(0, "zero");
-    tree.Insert(14, "fourteen");
-    tree.Insert(45, "forty-five");
+    tree.insert(2, "two");
+    tree.insert(4, "four");
+    tree.insert(90, "ninety");
+    tree.insert(3, "three");
+    tree.insert(0, "zero");
+    tree.insert(14, "fourteen");
+    tree.insert(45, "forty-five");
 
-    if (auto result1 = tree.Search(3)) {
+    if (auto result1 = tree.search(3)) {
         std::cout << result1->key << " -> " << result1->value << std::endl;
     } else {
         std::cout << "Key not found!" << std::endl;
     }
 
-    tree.Remove(3);
+    tree.remove(3);
 
-    if (auto result2 = tree.Search(3)) {
+    if (auto result2 = tree.search(3)) {
         std::cout << result2->key << " -> " << result2->value << std::endl;
     } else {
         std::cout << "Key not found!" << std::endl;
