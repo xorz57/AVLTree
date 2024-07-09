@@ -32,46 +32,47 @@
 #include <utility>
 
 template<typename Key, typename Value>
+struct AVLTreeNode {
+    AVLTreeNode(const Key &key, const Value &value) : key(key), value(value) {}
+
+    std::shared_ptr<AVLTreeNode> lChild;
+    std::shared_ptr<AVLTreeNode> rChild;
+
+    Key key;
+    Value value;
+
+    unsigned height = 1;
+};
+
+template<typename Key, typename Value>
+using Handler = std::function<void(const Key &, Value &)>;
+
+template<typename Key, typename Value>
 class AVLTree {
-public:
-    using Handler = std::function<void(const Key &, Value &)>;
-
 private:
-    struct AVLTreeNode {
-        AVLTreeNode(const Key &key, const Value &value) : key(key), value(value) {}
-
-        std::shared_ptr<AVLTreeNode> lChild;
-        std::shared_ptr<AVLTreeNode> rChild;
-
-        Key key;
-        Value value;
-
-        unsigned height = 1;
-    };
-
-    void PreOrderTraversalHelper(std::shared_ptr<AVLTreeNode> root, Handler handler) {
+    void PreOrderTraversalHelper(std::shared_ptr<AVLTreeNode<Key, Value>> root, Handler<Key, Value> handler) {
         if (!root) return;
         handler(root->key, root->value);
         PreOrderTraversalHelper(root->lChild, handler);
         PreOrderTraversalHelper(root->rChild, handler);
     }
 
-    void InOrderTraversalHelper(std::shared_ptr<AVLTreeNode> root, Handler handler) {
+    void InOrderTraversalHelper(std::shared_ptr<AVLTreeNode<Key, Value>> root, Handler<Key, Value> handler) {
         if (!root) return;
         InOrderTraversalHelper(root->lChild, handler);
         handler(root->key, root->value);
         InOrderTraversalHelper(root->rChild, handler);
     }
 
-    void PostOrderTraversalHelper(std::shared_ptr<AVLTreeNode> root, Handler handler) {
+    void PostOrderTraversalHelper(std::shared_ptr<AVLTreeNode<Key, Value>> root, Handler<Key, Value> handler) {
         if (!root) return;
         PostOrderTraversalHelper(root->lChild, handler);
         PostOrderTraversalHelper(root->rChild, handler);
         handler(root->key, root->value);
     }
 
-    std::shared_ptr<AVLTreeNode> InsertHelper(std::shared_ptr<AVLTreeNode> root, const Key &key, const Value &value) {
-        if (!root) return std::make_shared<AVLTreeNode>(key, value);
+    std::shared_ptr<AVLTreeNode<Key, Value>> InsertHelper(std::shared_ptr<AVLTreeNode<Key, Value>> root, const Key &key, const Value &value) {
+        if (!root) return std::make_shared<AVLTreeNode<Key, Value>>(key, value);
 
         if (key < root->key) {
             root->lChild = InsertHelper(root->lChild, key, value);
@@ -106,7 +107,7 @@ private:
         return root;
     }
 
-    std::shared_ptr<AVLTreeNode> RemoveHelper(std::shared_ptr<AVLTreeNode> root, const Key &key) {
+    std::shared_ptr<AVLTreeNode<Key, Value>> RemoveHelper(std::shared_ptr<AVLTreeNode<Key, Value>> root, const Key &key) {
         if (!root) return nullptr;
 
         if (key < root->key) {
@@ -115,12 +116,12 @@ private:
             root->rChild = RemoveHelper(root->rChild, key);
         } else {
             if (!root->lChild || !root->rChild) {
-                std::shared_ptr<AVLTreeNode> temp = root->lChild ? root->lChild : root->rChild;
+                std::shared_ptr<AVLTreeNode<Key, Value>> temp = root->lChild ? root->lChild : root->rChild;
                 root.reset();
                 return temp;
             }
 
-            std::shared_ptr<AVLTreeNode> temp = MinimumHelper(root->rChild);
+            std::shared_ptr<AVLTreeNode<Key, Value>> temp = MinimumHelper(root->rChild);
             root->key = temp->key;
             root->rChild = RemoveHelper(root->rChild, temp->key);
         }
@@ -150,7 +151,7 @@ private:
         return root;
     }
 
-    std::shared_ptr<AVLTreeNode> SearchHelper(std::shared_ptr<AVLTreeNode> root, const Key &key) {
+    std::shared_ptr<AVLTreeNode<Key, Value>> SearchHelper(std::shared_ptr<AVLTreeNode<Key, Value>> root, const Key &key) {
         while (root) {
             if (key > root->key) {
                 root = root->rChild;
@@ -163,19 +164,19 @@ private:
         return nullptr;
     }
 
-    std::shared_ptr<AVLTreeNode> MinimumHelper(std::shared_ptr<AVLTreeNode> root) {
+    std::shared_ptr<AVLTreeNode<Key, Value>> MinimumHelper(std::shared_ptr<AVLTreeNode<Key, Value>> root) {
         if (!root) return nullptr;
         while (root->lChild) root = root->lChild;
         return root;
     }
 
-    std::shared_ptr<AVLTreeNode> MaximumHelper(std::shared_ptr<AVLTreeNode> root) {
+    std::shared_ptr<AVLTreeNode<Key, Value>> MaximumHelper(std::shared_ptr<AVLTreeNode<Key, Value>> root) {
         if (!root) return nullptr;
         while (root->rChild) root = root->rChild;
         return root;
     }
 
-    std::shared_ptr<AVLTreeNode> RotateRight(std::shared_ptr<AVLTreeNode> root) {
+    std::shared_ptr<AVLTreeNode<Key, Value>> RotateRight(std::shared_ptr<AVLTreeNode<Key, Value>> root) {
         auto pivot = root->lChild;
         auto orphan = pivot->rChild;
 
@@ -188,7 +189,7 @@ private:
         return pivot;
     }
 
-    std::shared_ptr<AVLTreeNode> RotateLeft(std::shared_ptr<AVLTreeNode> root) {
+    std::shared_ptr<AVLTreeNode<Key, Value>> RotateLeft(std::shared_ptr<AVLTreeNode<Key, Value>> root) {
         auto pivot = root->rChild;
         auto orphan = pivot->lChild;
 
@@ -201,35 +202,35 @@ private:
         return pivot;
     }
 
-    unsigned HeightHelper(const std::shared_ptr<AVLTreeNode> root) const {
+    unsigned HeightHelper(const std::shared_ptr<AVLTreeNode<Key, Value>> root) const {
         if (!root) return 0;
         return root->height;
     }
 
-    unsigned SizeHelper(const std::shared_ptr<AVLTreeNode> root) {
+    unsigned SizeHelper(const std::shared_ptr<AVLTreeNode<Key, Value>> root) {
         if (!root) return 0;
         return 1 + SizeHelper(root->lChild) + SizeHelper(root->rChild);
     }
 
-    int Balance(const std::shared_ptr<AVLTreeNode> root) {
+    int Balance(const std::shared_ptr<AVLTreeNode<Key, Value>> root) {
         if (!root) return 0;
         return HeightHelper(root->lChild) - HeightHelper(root->rChild);
     }
 
-    std::shared_ptr<AVLTreeNode> mRoot;
+    std::shared_ptr<AVLTreeNode<Key, Value>> mRoot;
 
 public:
     AVLTree() = default;
 
-    void PreOrderTraversal(Handler handler) {
+    void PreOrderTraversal(Handler<Key, Value> handler) {
         PreOrderTraversalHelper(mRoot, handler);
     }
 
-    void InOrderTraversal(Handler handler) {
+    void InOrderTraversal(Handler<Key, Value> handler) {
         InOrderTraversalHelper(mRoot, handler);
     }
 
-    void PostOrderTraversal(Handler handler) {
+    void PostOrderTraversal(Handler<Key, Value> handler) {
         PostOrderTraversalHelper(mRoot, handler);
     }
 
@@ -245,15 +246,15 @@ public:
         mRoot = RemoveHelper(mRoot, key);
     }
 
-    std::shared_ptr<AVLTreeNode> Search(const Key &key) {
+    std::shared_ptr<AVLTreeNode<Key, Value>> Search(const Key &key) {
         return SearchHelper(mRoot, key);
     }
 
-    std::shared_ptr<AVLTreeNode> Minimum() {
+    std::shared_ptr<AVLTreeNode<Key, Value>> Minimum() {
         return MinimumHelper(mRoot);
     }
 
-    std::shared_ptr<AVLTreeNode> Maximum() {
+    std::shared_ptr<AVLTreeNode<Key, Value>> Maximum() {
         return MaximumHelper(mRoot);
     }
 
